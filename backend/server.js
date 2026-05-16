@@ -8,6 +8,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 const authRoutes = require('./routes/authRoutes'); // Import auth routes
 const taskRoutes = require('./routes/taskRoutes'); // Import task routes
+const userRoutes = require('./routes/userRoutes'); // Import user routes
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 const app = express();
@@ -24,11 +25,7 @@ app.get('/', (req, res) => {
 //Routes Setup
 app.use('/api/auth', authRoutes); // mounting auth routes
 app.use('/api/tasks', taskRoutes); // mounting task routes
-
-//Base Test Route
-app.get('/',(req,res)=>{
-    res.send('Welcome to the Task Manager API');
-});
+app.use('/api/users', userRoutes); // mounting user routes
 
 //Database Sync & Server Start
 const port = process.env.PORT || 5000;
