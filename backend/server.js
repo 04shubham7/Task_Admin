@@ -19,6 +19,11 @@ app.get('/', (req, res) => {
   res.send('Task Manager API is up and running');
 });
 
+// Auth routes
+const authController = require('./controllers/authController');
+app.post('/auth/register', authController.register);
+app.post('/auth/login', authController.login);
+
 //Database Sync & Server Start
 const port = process.env.PORT || 5000;
 sequelize.sync({alter:true}).then(() => {
