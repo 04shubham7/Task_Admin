@@ -6,6 +6,7 @@ const {User, Task} = require('./models/Task'); //Importing models to sync with d
 const sequelize = require('./config/database');
 const dotenv = require('dotenv');
 const path = require('path');
+const authRoutes = require('./routes/authRoutes'); // Import auth routes
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 const app = express();
@@ -19,10 +20,13 @@ app.get('/', (req, res) => {
   res.send('Task Manager API is up and running');
 });
 
-// Auth routes
-const authController = require('./controllers/authController');
-app.post('/auth/register', authController.register);
-app.post('/auth/login', authController.login);
+//Routes Setup
+app.use('/api/auth', authRoutes); // mounting auth routes
+
+//Base Test Route
+app.get('/',(req,res)=>{
+    res.send('Welcome to the Task Manager API');
+});
 
 //Database Sync & Server Start
 const port = process.env.PORT || 5000;
