@@ -25,7 +25,7 @@ exports.getUser=async(req,res)=>{
 //Create User
 exports.adminCreateUser=async(req,res)=>{
     try{
-        const{email.password,role}=req.body;
+        const{email,password,role}=req.body;
 
         const existingUser=await User.findOne({where:{email}});
         if(existingUser){
