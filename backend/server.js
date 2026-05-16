@@ -7,6 +7,7 @@ const sequelize = require('./config/database');
 const dotenv = require('dotenv');
 const path = require('path');
 const authRoutes = require('./routes/authRoutes'); // Import auth routes
+const taskRoutes = require('./routes/taskRoutes'); // Import task routes
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 const app = express();
@@ -22,6 +23,7 @@ app.get('/', (req, res) => {
 
 //Routes Setup
 app.use('/api/auth', authRoutes); // mounting auth routes
+app.use('/api/tasks', taskRoutes); // mounting task routes
 
 //Base Test Route
 app.get('/',(req,res)=>{
