@@ -13,8 +13,13 @@ const userRoutes = require('./routes/userRoutes'); // Import user routes
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 const app = express();
 
+const allowedOrigins = (process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:5174').split(',').map(origin => origin.trim()).filter(Boolean);
+
 //Middleware
-app.use(cors());
+app.use(cors({
+    origin: allowedOrigins,
+    credentials: true,
+}));
 app.use(express.json());
 
 //Test Routes
