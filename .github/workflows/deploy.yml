@@ -1,0 +1,71 @@
+name: CI/CD - Build, Push Images, Deploy
+
+on:
+  push:
+    branches: [ master, main ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_BACKEND: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.repository }}-backend
+      IMAGE_FRONTEND: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.repository }}-frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.repository }}-backend:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.repository }}-backend:${{ github.sha }}
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.repository }}-frontend:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.repository }}-frontend:${{ github.sha }}
+
+      - name: Copy docker-compose.prod.yml to server via SCP
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SERVER_SSH_PORT }}
+          source: "docker-compose.prod.yml"
+          target: ${{ secrets.DEPLOY_PATH }}
+
+      - name: Deploy on server via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SERVER_SSH_PORT }}
+          script: |
+            set -e
+            mkdir -p ${DEPLOY_PATH}
+            mv docker-compose.prod.yml ${DEPLOY_PATH}/docker-compose.prod.yml || true
+            cd ${DEPLOY_PATH}
+            docker-compose -f docker-compose.prod.yml pull --ignore-pull-failures
+            docker-compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker system prune -f
+
+  # Note: For AWS ECR push, replace the DockerHub login/push steps with aws-actions/amazon-ecr-login and set tags accordingly.
