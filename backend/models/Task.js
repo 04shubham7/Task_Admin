@@ -26,6 +26,10 @@ const Task = sequelize.define('Task', {
   dueDate:{
     type:DataTypes.DATE,
   },
+  assignedBy:{
+    type:DataTypes.UUID,
+    allowNull: true,
+  },
   documents:{
     type:DataTypes.JSONB, //Stores an array of S3 URLs
     defaultValue:[],
@@ -34,5 +38,7 @@ const Task = sequelize.define('Task', {
 
 User.hasMany(Task, {foreignKey: 'assignedTo'});
 Task.belongsTo(User, {foreignKey: 'assignedTo'});
+User.hasMany(Task, {foreignKey: 'assignedBy', as: 'AssignedTasks'});
+Task.belongsTo(User, {foreignKey: 'assignedBy', as: 'AssignedByUser'});
 
 module.exports = {User, Task};
