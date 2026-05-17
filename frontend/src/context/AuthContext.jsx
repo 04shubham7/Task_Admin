@@ -1,7 +1,6 @@
 import { createContext,useState,useEffect,useContext } from "react";
 import {useNavigate} from "react-router-dom";
 import API from "../api/axiosInstance";
-import { use } from "react";
 
 const AuthContext=createContext(null);
 
@@ -11,14 +10,23 @@ export const AuthProvider=({children})=>{
     const navigate=useNavigate();
 
     useEffect(()=>{
-        const checkAuth=()=>{
-            const savedUser=localStorage.getItem('user');
-            const token=localStorage.getItem('token');
-            if(savedUser && token){
-                setUser(JSON.parse(savedUser));
-            }setLoading(false);
+        const savedUser=localStorage.getItem('user');
+        const token=localStorage.getItem('token');
+        if(savedUser && token){
+            setUser(JSON.parse(savedUser));
+        }else{
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+        }
+        setLoading(false);
+
+        const handleAuthExpired = () => {
+            setUser(null);
+            navigate('/login');
         };
-        checkAuth();
+
+        window.addEventListener('auth:expired', handleAuthExpired);
+        return () => window.removeEventListener('auth:expired', handleAuthExpired);
     },[]);
 
     const loginUser=async(email,password)=>{
@@ -36,9 +44,9 @@ export const AuthProvider=({children})=>{
         }
     };
 
-    const registerUser=async(email,password)=>{
+    const registerUser=async(email,password,role='User')=>{
         try{
-            await API.post('/auth/register',{email,password});
+            await API.post('/auth/register',{email,password,role});
             return {success:true};
         }catch(error){
             return {

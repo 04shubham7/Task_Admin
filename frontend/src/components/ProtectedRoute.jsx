@@ -10,8 +10,9 @@ const ProtectedRoute=({allowedRoles})=>{
     }
 
     if(allowedRoles && !allowedRoles.includes(user.role)){
-        //User doesn't have the required role, send them packing to the login screen
-        return <Navigate to="/dashboard" replace />;
+        //Non-admin users should never reach admin-only pages.
+        const redirectTo = allowedRoles.includes('Admin') ? '/dashboard' : '/login';
+        return <Navigate to={redirectTo} replace />;
     }
         //User has the required role, render the component
         return <Outlet />;

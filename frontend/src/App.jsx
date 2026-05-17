@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import Tasks from './pages/Tasks';
 import Users from './pages/Users';
@@ -24,8 +25,9 @@ function App() {
         <Route path="/users" element={<Users />} />
       </Route>
 
-      {/* Fallback default route redirecting straight home */}
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      {/* Landing and fallback */}
+      <Route path="/" element={<Landing />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
