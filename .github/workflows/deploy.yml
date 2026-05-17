@@ -10,6 +10,7 @@ jobs:
     env:
       IMAGE_BACKEND: ${{ secrets.DOCKERHUB_USERNAME }}/task_admin-backend
       IMAGE_FRONTEND: ${{ secrets.DOCKERHUB_USERNAME }}/task_admin-frontend
+      DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
 
     steps:
       - name: Checkout
@@ -59,11 +60,18 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SERVER_SSH_PORT }}
+          envs: DEPLOY_PATH
           script: |
             set -e
-            mkdir -p ${DEPLOY_PATH}
-            mv docker-compose.prod.yml ${DEPLOY_PATH}/docker-compose.prod.yml || true
-            cd ${DEPLOY_PATH}
+            if [ -z "$DEPLOY_PATH" ]; then
+              echo "DEPLOY_PATH secret is empty"
+              exit 1
+            fi
+            mkdir -p "$DEPLOY_PATH"
+            if [ -f docker-compose.prod.yml ]; then
+              mv docker-compose.prod.yml "$DEPLOY_PATH/docker-compose.prod.yml"
+            fi
+            cd "$DEPLOY_PATH"
             docker-compose -f docker-compose.prod.yml pull --ignore-pull-failures
             docker-compose -f docker-compose.prod.yml up -d --remove-orphans
             docker system prune -f
