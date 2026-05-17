@@ -321,7 +321,3 @@ fsd-intern-task/
 | Tasks | `/api/tasks`, `/api/tasks/:id`, `/api/tasks/:id/status`, `/api/tasks/download` |
 | Users | `/api/users`, `/api/users/:id` |
 | Health | `/` |
-
-## License
-
-No license file is currently defined in this repository.
