@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import DashboardLayout from '../layouts/DashboardLayout';
 import API from '../api/axiosInstance';
 import { ShieldAlert, Trash2 } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState('');
+  const { addToast } = useToast();
 
   const fetchUsers = async () => {
     try {
@@ -23,13 +25,26 @@ const Users = () => {
 
   const deleteUser = async (id) => {
     if (!confirm("Erase user profile authentication metadata?")) return;
+    // optimistic UI: remove locally first
+    const prev = users;
+    const next = users.filter(u => u.id !== id);
+    setUsers(next);
+    const toastId = addToast({ title: 'Deleting user', message: 'Removing user from registry...', type: 'info' });
     try {
       await API.delete(`/users/${id}`);
-      fetchUsers();
+      addToast({ title: 'Deleted', message: 'User removed successfully', type: 'success' });
     } catch (err) {
+      // revert on failure
+      setUsers(prev);
+      addToast({ title: 'Delete failed', message: 'Could not delete user. Try again.', type: 'error' });
       console.error(err);
+    } finally {
+      // remove intermediate toast
+      // allow it to auto-dismiss; nothing to do here
     }
   };
+
+  const { addToast } = useToast();
 
   return (
     <DashboardLayout>
