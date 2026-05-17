@@ -17,7 +17,7 @@ const allowedOrigins = (process.env.CORS_ORIGIN || process.env.FRONTEND_URL || '
 
 //Middleware
 app.use(cors({
-    origin: allowedOrigins,
+    origin: allowedOrigins.length ? allowedOrigins : true,
     credentials: true,
 }));
 app.use(express.json());

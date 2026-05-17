@@ -29,7 +29,7 @@ const Users = () => {
     const prev = users;
     const next = users.filter(u => u.id !== id);
     setUsers(next);
-    const toastId = addToast({ title: 'Deleting user', message: 'Removing user from registry...', type: 'info' });
+    addToast({ title: 'Deleting user', message: 'Removing user from registry...', type: 'info' });
     try {
       await API.delete(`/users/${id}`);
       addToast({ title: 'Deleted', message: 'User removed successfully', type: 'success' });
@@ -43,8 +43,6 @@ const Users = () => {
       // allow it to auto-dismiss; nothing to do here
     }
   };
-
-  const { addToast } = useToast();
 
   return (
     <DashboardLayout>
