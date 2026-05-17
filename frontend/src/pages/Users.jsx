@@ -5,12 +5,16 @@ import { ShieldAlert, Trash2 } from 'lucide-react';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
+  const [error, setError] = useState('');
 
   const fetchUsers = async () => {
     try {
       const res = await API.get('/users');
-      setUsers(res.data || []);
+      setUsers(res.data.users || []);
+      setError('');
     } catch (err) {
+      setUsers([]);
+      setError(err.response?.status === 403 ? 'Admin access required to view all users.' : 'Unable to load users.');
       console.error(err);
     }
   };
@@ -34,6 +38,7 @@ const Users = () => {
           <ShieldAlert className="text-indigo-600" size={20} />
           <h2 className="text-base font-bold">Account Registry (Admin Operations)</h2>
         </div>
+        {error && <div className="m-6 mb-0 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-700">{error}</div>}
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-wider border-b">
