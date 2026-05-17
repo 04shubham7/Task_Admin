@@ -72,8 +72,13 @@ jobs:
               mv docker-compose.prod.yml "$DEPLOY_PATH/docker-compose.prod.yml"
             fi
             cd "$DEPLOY_PATH"
-            docker-compose -f docker-compose.prod.yml pull --ignore-pull-failures
-            docker-compose -f docker-compose.prod.yml up -d --remove-orphans
+            if command -v docker-compose >/dev/null 2>&1; then
+              COMPOSE_CMD="docker-compose"
+            else
+              COMPOSE_CMD="docker compose"
+            fi
+            $COMPOSE_CMD -f docker-compose.prod.yml pull --ignore-pull-failures
+            $COMPOSE_CMD -f docker-compose.prod.yml up -d --remove-orphans
             docker system prune -f
 
   # Note: For AWS ECR push, replace the DockerHub login/push steps with aws-actions/amazon-ecr-login and set tags accordingly.
