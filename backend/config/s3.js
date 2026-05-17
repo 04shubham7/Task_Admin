@@ -11,17 +11,25 @@ const s3=new S3Client({
     },
 });
 
+const canUseS3 = Boolean(
+    process.env.AWS_BUCKET_NAME &&
+    (process.env.AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY) &&
+    (process.env.AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_KEY)
+);
+
 const upload=multer({
-    storage:multerS3({
-        s3:s3,
-        bucket:process.env.AWS_BUCKET_NAME,
-        metadata:(req,file,cb)=>{
-            cb(null,{fieldName:file.fieldname});
-        },
-        key:(req,file,cb)=>{
-            cb(null,`tasks/${Date.now()}_${file.originalname}`);
-        },
-    }),
+    storage: canUseS3
+        ? multerS3({
+            s3:s3,
+            bucket:process.env.AWS_BUCKET_NAME,
+            metadata:(req,file,cb)=>{
+                cb(null,{fieldName:file.fieldname});
+            },
+            key:(req,file,cb)=>{
+                cb(null,`tasks/${Date.now()}_${file.originalname}`);
+            },
+        })
+        : multer.memoryStorage(),
     fileFilter:(req,file,cb)=>{
         if(file.mimetype === "application/pdf"){
             cb(null,true);
@@ -32,4 +40,4 @@ const upload=multer({
     limits:{files:3},
 });
 
-module.exports=upload;
+module.exports={ upload, canUseS3 };

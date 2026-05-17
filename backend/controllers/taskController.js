@@ -22,6 +22,12 @@ const canManageTaskStatus = (task, user) => {
     return task.assignedTo === user.id;
 };
 
+const isS3Configured = Boolean(
+    process.env.AWS_BUCKET_NAME &&
+    (process.env.AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY) &&
+    (process.env.AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_KEY)
+);
+
 const taskIncludes = [
     {model:User,attributes:['email']},
     {model:User,as:'AssignedByUser',attributes:['email'],required:false},
@@ -47,8 +53,12 @@ exports.createTask=async(req,res)=>{
         const{title,description,status,priority,dueDate,assignedTo}=req.body;
         const normalizedStatus = normalizeStatus(status);
 
+        if (req.files && req.files.length > 0 && !isS3Configured) {
+            return res.status(503).json({message:'File uploads are not configured on this server'});
+        }
+
         //Extract S3 URLs from uploaded files
-        const documents=req.files ? req.files.map(file=>file.location) : [];
+        const documents=req.files ? req.files.map(file=>file.location).filter(Boolean) : [];
 
         //Create new task
         const task=await Task.create({
@@ -113,6 +123,9 @@ exports.updateTask=async(req,res)=>{
             updatedData.status = normalizeStatus(updatedData.status);
         }
         if(req.files && req.files.length>0){
+            if (!isS3Configured) {
+                return res.status(503).json({message:'File uploads are not configured on this server'});
+            }
             updatedData.documents=req.files.map(file=>file.location);
         }
 

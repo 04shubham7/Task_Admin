@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const taskController = require('../controllers/taskController');
 const authMiddleware = require('../controllers/authMiddleware');
-const upload = require('../config/s3');
+const { upload } = require('../config/s3');
 
 router.get('/download', taskController.downloadDocument);
 
