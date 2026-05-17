@@ -1,4 +1,4 @@
-const {user, User}=require('../models/Task'); //Imports user from our models index
+const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 
 //get all users
@@ -60,7 +60,7 @@ exports.adminCreateUser=async(req,res)=>{
 
             await user.update({email,role});
             res.json({message:'User updated successfully',user});
-        }catch{err}{
+        }catch(err){
             res.status(500).json({message:'Error updating user',err});
         }
     };
