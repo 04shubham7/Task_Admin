@@ -60,11 +60,10 @@ sequenceDiagram
 ```
 
 ```mermaid
-stateDiagram-v2
-  [*] --> Todo
-  Todo --> "In Progress": start work
-  "In Progress" --> Done: complete work
-  Done --> "In Progress": reopen
+flowchart LR
+  A[Todo] -->|start work| B[In Progress]
+  B -->|complete work| C[Done]
+  C -->|reopen| B
 ```
 
 ## Role and Permission Model
