@@ -6,9 +6,11 @@ import Dashboard from './pages/Dashboard';
 import Tasks from './pages/Tasks';
 import Users from './pages/Users';
 import ProtectedRoute from './components/ProtectedRoute';
+import { ToastProvider } from './context/ToastContext';
 
 function App() {
   return (
+    <ToastProvider>
     <Routes>
       {/* Public Routes */}
       <Route path="/login" element={<Login />} />
@@ -29,6 +31,7 @@ function App() {
       <Route path="/" element={<Landing />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </ToastProvider>
   );
 }
 
